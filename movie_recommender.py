@@ -11,13 +11,12 @@ def load_movies_file(filename):
             genre, movie_id, name = line.strip().split('|')
             movies[name] = genre, movie_id
     print(f"Loaded {len(movies)} movies from {filename}")
-    print(f"{movies}")
     return movies
 
 def load_ratings_file(filename):
     """
     Given a ratings file, return dictionary of ratings in the following format:
-    {'movie name': ('rating', 'id')}
+    {'movie name': [('rating1', 'id1'), ('rating2', 'id2')]}
     """
     ratings = {}
     with open(filename, "r") as f:
@@ -28,6 +27,7 @@ def load_ratings_file(filename):
     return ratings
 
 def movie_popularity(ratings, n):
+    print(f"{ratings}")
     averages = {}
     for movie in ratings:
         just_ratings = [r for r, u in ratings[movie]]
@@ -40,10 +40,21 @@ def movie_popularity(ratings, n):
     for i in range(n):
         print(sorted_movies[i])
     
+def movie_popularity_in_genre(movies, ratings, genre, n):
+    movie_scores = {}
+    for movie_name, (movie_genre, movie_id) in movies.items():
+        if movie_genre.lower() == genre.lower():
+            if movie_name in ratings:
+                scores = [r for r, _ in ratings[movie_name]]
+                avg = sum(scores)/len(scores)
+                movie_scores[movie_name] = avg
+    sorted_movies = sorted(movie_scores.items(), key=lambda x: x[1], reverse=True)
+    top_n = sorted_movies[:n]
+    print(f"\nTop {n} {genre} movies (by average rating):")
+    for movie, avg in top_n:
+        print(f"{movie}: {avg:.2f}")
 
 '''
-def movie_popularity_in_genre(int: n):
-
 def genre_popularity(int: n):
 
 def user_preference():
