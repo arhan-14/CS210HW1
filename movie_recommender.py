@@ -1,15 +1,24 @@
 import sys
 
 def load_movies_file(filename):
+    """
+    Given a movies file, return dictionary of movies in the following format:
+    {'movie name': ('genre', 'id')}
+    """
     movies = {}
     with open(filename, "r") as f:
         for line in f:
             genre, movie_id, name = line.strip().split('|')
-            movies[name] = genre
+            movies[name] = genre, movie_id
     print(f"Loaded {len(movies)} movies from {filename}")
+    print(f"{movies}")
     return movies
 
 def load_ratings_file(filename):
+    """
+    Given a ratings file, return dictionary of ratings in the following format:
+    {'movie name': ('rating', 'id')}
+    """
     ratings = {}
     with open(filename, "r") as f:
         for line in f:
