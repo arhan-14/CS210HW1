@@ -54,11 +54,71 @@ def movie_popularity_in_genre(movies, ratings, genre, n):
     for movie, avg in top_n:
         print(f"{movie}: {avg:.2f}")
 
+
+def genre_popularity(movies, ratings, n):
+    movie_avg = {}
+    for movie_name, rating_list in ratings.items():
+        avg = sum(r for r, _ in rating_list) / len(rating_list)
+        movie_avg[movie_name] = avg
+
+    genre_totals = {} 
+    genre_counts = {}  
+    for movie_name, avg in movie_avg.items():
+        if movie_name in movies:
+            genre = movies[movie_name][0] 
+            genre_totals[genre] = genre_totals.get(genre, 0) + avg
+            genre_counts[genre] = genre_counts.get(genre, 0) + 1
+
+    genre_avg = {}
+    for genre in genre_totals:
+        genre_avg[genre] = genre_totals[genre] / genre_counts[genre]
+
+    sorted_genres = sorted(genre_avg.items(), key=lambda x: x[1], reverse=True)
+
+    print(f"\nTop {n} genres by average rating:")
+    for genre, avg in sorted_genres[:n]:
+        print(f"{genre}: {avg:.2f}")
+
+    return sorted_genres[:n]
+
+def user_preference(movies, ratings, user_id):
+    genre_totals = {} 
+    genre_counts = {} 
+
+    for movie_name, rating_list in ratings.items():
+        movie_name_clean = movie_name.strip() 
+
+        
+        if movie_name_clean not in movies:
+            continue
+
+       
+        user_ratings = [r for r, uid in rating_list if uid == user_id]
+
+        if user_ratings:
+            avg_user_rating = sum(user_ratings) / len(user_ratings)
+            genre = movies[movie_name_clean][0].strip()  
+            genre_totals[genre] = genre_totals.get(genre, 0) + avg_user_rating
+            genre_counts[genre] = genre_counts.get(genre, 0) + 1
+
+    if not genre_totals:
+        print(f"User {user_id} has not rated any movies in the database.")
+        return None
+
+    
+    genre_avg = {genre: genre_totals[genre] / genre_counts[genre] for genre in genre_totals}
+
+    
+    preferred_genre = max(genre_avg.items(), key=lambda x: x[1])[0]
+
+    print(f"User {user_id}'s preferred genre is: {preferred_genre} "
+          f"(average rating: {genre_avg[preferred_genre]:.2f})")
+
+    return preferred_genre
+
+
+
 '''
-def genre_popularity(int: n):
-
-def user_preference():
-
 def recommend_movies():
 '''
 
@@ -103,8 +163,9 @@ def main():
             genre_popularity(movies, ratings, n)
 
         elif choice == "6":
-            user_id = input("Enter user ID: ").strip()
-            user_preference(user_id, movies, ratings)
+            user_id = int(input("Enter user id: "))
+            user_preference(movies, ratings, user_id)
+
 
         elif choice == "7":
             user_id = input("Enter user ID: ").strip()
