@@ -62,6 +62,26 @@ def movie_popularity_in_genre(movies, ratings, genre, n):
 
 
 def genre_popularity(movies, ratings, n):
+    """
+    Calculate and return the top N genres by average movie rating.
+
+    Args:
+        movies (dict): A dictionary where keys are movie names and values are tuples/lists 
+                       where the first element is the genre of the movie.
+                       Example: {"Inception": ("Sci-Fi", 2010)}
+        ratings (dict): A dictionary where keys are movie names and values are lists of tuples,
+                        each containing a rating and a user ID.
+                        Example: {"Inception": [(5, 101), (4, 102)]}
+        n (int): Number of top genres to return.
+
+    Returns:
+        list: A list of tuples containing the top N genres and their average ratings,
+              sorted in descending order by average rating.
+              Example: [("Sci-Fi", 4.5), ("Drama", 4.2)]
+
+    Prints:
+        Top N genres by average rating with two decimal places.
+    """
     movie_avg = {}
     for movie_name, rating_list in ratings.items():
         avg = sum(r for r, _ in rating_list) / len(rating_list)
@@ -89,6 +109,25 @@ def genre_popularity(movies, ratings, n):
 
 
 def user_preference(movies, ratings, user_id):
+    """
+    Determine a user's preferred genre based on their ratings.
+
+    Args:
+        movies (dict): A dictionary where keys are movie names and values are tuples/lists 
+                       where the first element is the genre of the movie.
+                       Example: {"Inception": ("Sci-Fi", 2010)}
+        ratings (dict): A dictionary where keys are movie names and values are lists of tuples,
+                        each containing a rating and a user ID.
+                        Example: {"Inception": [(5, 101), (4, 102)]}
+        user_id (int): The ID of the user whose preferred genre is being calculated.
+
+    Returns:
+        str or None: The genre that the user has rated highest on average. 
+                     Returns None if the user has not rated any movies.
+
+    Prints:
+        The user's preferred genre along with its average rating.
+    """
     genre_totals = {}
     genre_counts = {}
 
