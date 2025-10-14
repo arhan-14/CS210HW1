@@ -1,5 +1,6 @@
 import sys
 
+
 def load_movies_file(filename):
     """
     Given a movies file, return dictionary of movies in the following format:
@@ -8,10 +9,11 @@ def load_movies_file(filename):
     movies = {}
     with open(filename, "r") as f:
         for line in f:
-            genre, movie_id, name = line.strip().split('|')
+            genre, movie_id, name = line.strip().split("|")
             movies[name] = genre, movie_id
     print(f"Loaded {len(movies)} movies from {filename}")
     return movies
+
 
 def load_ratings_file(filename):
     """
@@ -21,32 +23,36 @@ def load_ratings_file(filename):
     ratings = {}
     with open(filename, "r") as f:
         for line in f:
-            name, rating, user_id = line.strip().split('|')
+            name, rating, user_id = line.strip().split("|")
             ratings.setdefault(name, []).append((float(rating), int(user_id)))
     print(f"Loaded {len(ratings)} ratings from {filename}...")
     return ratings
+
 
 def movie_popularity(ratings, n):
     print(f"{ratings}")
     averages = {}
     for movie in ratings:
         just_ratings = [r for r, u in ratings[movie]]
-        avg = sum(just_ratings)/len(just_ratings)
+        avg = sum(just_ratings) / len(just_ratings)
         averages[movie] = avg
-    sorted_averages = dict(sorted(averages.items(), key=lambda item: item[1], reverse=True))
+    sorted_averages = dict(
+        sorted(averages.items(), key=lambda item: item[1], reverse=True)
+    )
     sorted_movies = list(sorted_averages.keys())
-    print('\n')
+    print("\n")
     print(f"Here are the top {n} movies:")
     for i in range(n):
         print(sorted_movies[i])
-    
+
+
 def movie_popularity_in_genre(movies, ratings, genre, n):
     movie_scores = {}
     for movie_name, (movie_genre, movie_id) in movies.items():
         if movie_genre.lower() == genre.lower():
             if movie_name in ratings:
                 scores = [r for r, _ in ratings[movie_name]]
-                avg = sum(scores)/len(scores)
+                avg = sum(scores) / len(scores)
                 movie_scores[movie_name] = avg
     sorted_movies = sorted(movie_scores.items(), key=lambda x: x[1], reverse=True)
     top_n = sorted_movies[:n]
@@ -61,11 +67,11 @@ def genre_popularity(movies, ratings, n):
         avg = sum(r for r, _ in rating_list) / len(rating_list)
         movie_avg[movie_name] = avg
 
-    genre_totals = {} 
-    genre_counts = {}  
+    genre_totals = {}
+    genre_counts = {}
     for movie_name, avg in movie_avg.items():
         if movie_name in movies:
-            genre = movies[movie_name][0] 
+            genre = movies[movie_name][0]
             genre_totals[genre] = genre_totals.get(genre, 0) + avg
             genre_counts[genre] = genre_counts.get(genre, 0) + 1
 
@@ -81,23 +87,22 @@ def genre_popularity(movies, ratings, n):
 
     return sorted_genres[:n]
 
+
 def user_preference(movies, ratings, user_id):
-    genre_totals = {} 
-    genre_counts = {} 
+    genre_totals = {}
+    genre_counts = {}
 
     for movie_name, rating_list in ratings.items():
-        movie_name_clean = movie_name.strip() 
+        movie_name_clean = movie_name.strip()
 
-        
         if movie_name_clean not in movies:
             continue
 
-       
         user_ratings = [r for r, uid in rating_list if uid == user_id]
 
         if user_ratings:
             avg_user_rating = sum(user_ratings) / len(user_ratings)
-            genre = movies[movie_name_clean][0].strip()  
+            genre = movies[movie_name_clean][0].strip()
             genre_totals[genre] = genre_totals.get(genre, 0) + avg_user_rating
             genre_counts[genre] = genre_counts.get(genre, 0) + 1
 
@@ -105,22 +110,61 @@ def user_preference(movies, ratings, user_id):
         print(f"User {user_id} has not rated any movies in the database.")
         return None
 
-    
-    genre_avg = {genre: genre_totals[genre] / genre_counts[genre] for genre in genre_totals}
+    genre_avg = {
+        genre: genre_totals[genre] / genre_counts[genre] for genre in genre_totals
+    }
 
-    
     preferred_genre = max(genre_avg.items(), key=lambda x: x[1])[0]
 
-    print(f"User {user_id}'s preferred genre is: {preferred_genre} "
-          f"(average rating: {genre_avg[preferred_genre]:.2f})")
+    print(
+        f"User {user_id}'s preferred genre is: {preferred_genre} "
+        f"(average rating: {genre_avg[preferred_genre]:.2f})"
+    )
 
     return preferred_genre
 
 
+def recommend_movies(user_id, movies, ratings):
+    """
+    Recommend 3 most popular movies from the user's top genre
+    that the user has not yet rated.
+    """
+    if not movies or not ratings:
+        print("Please load movies and ratings data first.")
+        return
 
-'''
-def recommend_movies():
-'''
+    preferred_genre = user_preference(movies, ratings, int(user_id))
+    if not preferred_genre:
+        print("Cannot determine preferred genre — user may not have rated any movies.")
+        return
+
+    genre_movies = {
+        name: (genre, mid)
+        for name, (genre, mid) in movies.items()
+        if genre.lower() == preferred_genre.lower()
+    }
+    rated_movies = set()
+    for movie_name, rating_list in ratings.items():
+        for _, uid in rating_list:
+            if uid == int(user_id):
+                rated_movies.add(movie_name)
+
+    movie_scores = {}
+    for movie_name, (genre, mid) in genre_movies.items():
+        if movie_name not in rated_movies and movie_name in ratings:
+            scores = [r for r, _ in ratings[movie_name]]
+            avg = sum(scores) / len(scores)
+            movie_scores[movie_name] = avg
+
+    sorted_recs = sorted(movie_scores.items(), key=lambda x: x[1], reverse=True)
+    print(f"\nTop 3 recommended movies for User {user_id} (Genre: {preferred_genre}):")
+    if not sorted_recs:
+        print("No unrated movies available in your top genre.")
+        return
+
+    for movie, avg in sorted_recs[:3]:
+        print(f"{movie}: {avg:.2f}")
+
 
 def print_menu():
     print("\n=== Movie Recommender Menu ===")
@@ -132,6 +176,7 @@ def print_menu():
     print("6. Show user's top genre")
     print("7. Recommend movies for a user")
     print("8. Exit")
+
 
 def main():
     movies = []
@@ -166,7 +211,6 @@ def main():
             user_id = int(input("Enter user id: "))
             user_preference(movies, ratings, user_id)
 
-
         elif choice == "7":
             user_id = input("Enter user ID: ").strip()
             recommend_movies(user_id, movies, ratings)
@@ -177,6 +221,7 @@ def main():
 
         else:
             print("Invalid choice. Please try again.")
+
 
 if __name__ == "__main__":
     main()
