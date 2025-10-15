@@ -86,6 +86,7 @@ def genre_popularity(movies, ratings, n):
     Prints:
         Top N genres by average rating with two decimal places.
     """
+
     # Normalize movie names and genres to lowercase for matching
     movies_lower = {name.lower(): (vals[0].strip().lower(), *vals[1:]) for name, vals in movies.items()}
     ratings_lower = {name.lower(): val for name, val in ratings.items()}
@@ -141,6 +142,7 @@ def user_preference(movies, ratings, user_id):
     Prints:
         The user's preferred genre along with its average rating.
     """
+
     # Normalize movie names and genres to lowercase for matching
     movies_lower = {name.lower(): (vals[0].strip().lower(), *vals[1:]) for name, vals in movies.items()}
     ratings_lower = {name.lower(): val for name, val in ratings.items()}
@@ -257,12 +259,18 @@ def main():
             movie_popularity_in_genre(movies, ratings, genre, n)
 
         elif choice == "5":
-            n = int(input("Enter N: ").strip())
-            genre_popularity(movies, ratings, n)
+            try:
+                n = int(input("Enter N: ").strip())
+                genre_popularity(movies, ratings, n)
+            except ValueError:
+                print("Invalid input. Please enter an integer for N.")
 
         elif choice == "6":
-            user_id = int(input("Enter user id: "))
-            user_preference(movies, ratings, user_id)
+            try:
+                user_id = int(input("Enter user id: ").strip())
+                user_preference(movies, ratings, user_id)
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
 
         elif choice == "7":
             user_id = input("Enter user ID: ").strip()
