@@ -63,60 +63,73 @@ def movie_popularity_in_genre(movies, ratings, genre, n):
 
 def genre_popularity(movies, ratings, n):
     """
-    Calculate and return the top N genres by average movie rating.
+    Calculate and return the top N genres by average movie rating (case-insensitive).
+
+    Movie names and genres are treated in a case-insensitive way. 
+    For example, "Inception" and "inception" will be considered the same movie,
+    and "Sci-Fi" and "sci-fi" will be treated as the same genre.
 
     Args:
-        movies (dict): A dictionary where keys are movie names and values are tuples/lists 
-                       where the first element is the genre of the movie.
+        movies (dict): Dictionary where keys are movie names (any case) and values are tuples/lists.
+                       The first element in the tuple/list should be the genre of the movie.
                        Example: {"Inception": ("Sci-Fi", 2010)}
-        ratings (dict): A dictionary where keys are movie names and values are lists of tuples,
+        ratings (dict): Dictionary where keys are movie names (any case) and values are lists of tuples,
                         each containing a rating and a user ID.
                         Example: {"Inception": [(5, 101), (4, 102)]}
         n (int): Number of top genres to return.
 
     Returns:
-        list: A list of tuples containing the top N genres and their average ratings,
+        list: List of tuples containing the top N genres (properly capitalized) and their average ratings,
               sorted in descending order by average rating.
               Example: [("Sci-Fi", 4.5), ("Drama", 4.2)]
 
     Prints:
         Top N genres by average rating with two decimal places.
     """
+    # Normalize movie names and genres to lowercase for matching
+    movies_lower = {name.lower(): (vals[0].strip().lower(), *vals[1:]) for name, vals in movies.items()}
+    ratings_lower = {name.lower(): val for name, val in ratings.items()}
+
+    # Calculate average rating per movie
     movie_avg = {}
-    for movie_name, rating_list in ratings.items():
+    for movie_name, rating_list in ratings_lower.items():
         avg = sum(r for r, _ in rating_list) / len(rating_list)
         movie_avg[movie_name] = avg
 
+    # Aggregate ratings by genre
     genre_totals = {}
     genre_counts = {}
     for movie_name, avg in movie_avg.items():
-        if movie_name in movies:
-            genre = movies[movie_name][0]
+        if movie_name in movies_lower:
+            genre = movies_lower[movie_name][0]
             genre_totals[genre] = genre_totals.get(genre, 0) + avg
             genre_counts[genre] = genre_counts.get(genre, 0) + 1
 
-    genre_avg = {}
-    for genre in genre_totals:
-        genre_avg[genre] = genre_totals[genre] / genre_counts[genre]
-
+    # Calculate average rating per genre
+    genre_avg = {g: genre_totals[g] / genre_counts[g] for g in genre_totals}
     sorted_genres = sorted(genre_avg.items(), key=lambda x: x[1], reverse=True)
 
     print(f"\nTop {n} genres by average rating:")
     for genre, avg in sorted_genres[:n]:
-        print(f"{genre}: {avg:.2f}")
+        print(f"{genre.title()}: {avg:.2f}")
 
-    return sorted_genres[:n]
+    # Return top N genres with proper capitalization
+    return [(genre.title(), avg) for genre, avg in sorted_genres[:n]]
 
 
 def user_preference(movies, ratings, user_id):
     """
-    Determine a user's preferred genre based on their ratings.
+    Determine a user's preferred genre based on their ratings (case-insensitive).
+
+    Movie names and genres are treated in a case-insensitive way. 
+    For example, "Inception" and "inception" will be considered the same movie,
+    and "Sci-Fi" and "sci-fi" will be treated as the same genre.
 
     Args:
-        movies (dict): A dictionary where keys are movie names and values are tuples/lists 
-                       where the first element is the genre of the movie.
+        movies (dict): Dictionary where keys are movie names (any case) and values are tuples/lists.
+                       The first element in the tuple/list should be the genre of the movie.
                        Example: {"Inception": ("Sci-Fi", 2010)}
-        ratings (dict): A dictionary where keys are movie names and values are lists of tuples,
+        ratings (dict): Dictionary where keys are movie names (any case) and values are lists of tuples,
                         each containing a rating and a user ID.
                         Example: {"Inception": [(5, 101), (4, 102)]}
         user_id (int): The ID of the user whose preferred genre is being calculated.
@@ -128,20 +141,23 @@ def user_preference(movies, ratings, user_id):
     Prints:
         The user's preferred genre along with its average rating.
     """
+    # Normalize movie names and genres to lowercase for matching
+    movies_lower = {name.lower(): (vals[0].strip().lower(), *vals[1:]) for name, vals in movies.items()}
+    ratings_lower = {name.lower(): val for name, val in ratings.items()}
+
     genre_totals = {}
     genre_counts = {}
 
-    for movie_name, rating_list in ratings.items():
-        movie_name_clean = movie_name.strip()
-
-        if movie_name_clean not in movies:
+    for movie_name, rating_list in ratings_lower.items():
+        if movie_name not in movies_lower:
             continue
 
+        # Find ratings by this specific user
         user_ratings = [r for r, uid in rating_list if uid == user_id]
 
         if user_ratings:
             avg_user_rating = sum(user_ratings) / len(user_ratings)
-            genre = movies[movie_name_clean][0].strip()
+            genre = movies_lower[movie_name][0]
             genre_totals[genre] = genre_totals.get(genre, 0) + avg_user_rating
             genre_counts[genre] = genre_counts.get(genre, 0) + 1
 
@@ -149,18 +165,16 @@ def user_preference(movies, ratings, user_id):
         print(f"User {user_id} has not rated any movies in the database.")
         return None
 
-    genre_avg = {
-        genre: genre_totals[genre] / genre_counts[genre] for genre in genre_totals
-    }
-
+    # Calculate average rating per genre for this user
+    genre_avg = {g: genre_totals[g] / genre_counts[g] for g in genre_totals}
     preferred_genre = max(genre_avg.items(), key=lambda x: x[1])[0]
 
-    print(
-        f"User {user_id}'s preferred genre is: {preferred_genre} "
-        f"(average rating: {genre_avg[preferred_genre]:.2f})"
-    )
+    print(f"User {user_id}'s preferred genre is: {preferred_genre.title()} "
+          f"(average rating: {genre_avg[preferred_genre]:.2f})")
 
-    return preferred_genre
+    return preferred_genre.title()
+
+
 
 
 def recommend_movies(user_id, movies, ratings):
