@@ -30,7 +30,13 @@ def load_ratings_file(filename):
 
 
 def movie_popularity(ratings, n):
-    print(f"{ratings}")
+    """
+    Calculate and display the top N movies ranked by their average rating.
+
+    Each movie's average rating is calculated by taking the mean of all its user ratings.
+    The movies are then sorted in descending order of their average rating, and the top N
+    movies are printed.
+    """
     averages = {}
     for movie in ratings:
         just_ratings = [r for r, u in ratings[movie]]
@@ -47,6 +53,13 @@ def movie_popularity(ratings, n):
 
 
 def movie_popularity_in_genre(movies, ratings, genre, n):
+    """
+    Calculate and display the top N movies within a specific genre ranked by their average rating.
+
+    For all movies that belong to the specified genre, their average ratings are calculated 
+    based on user ratings. The results are then sorted from highest to lowest average rating, 
+    and the top N movies are printed.
+    """
     movie_scores = {}
     for movie_name, (movie_genre, movie_id) in movies.items():
         if movie_genre.lower() == genre.lower():
@@ -59,7 +72,6 @@ def movie_popularity_in_genre(movies, ratings, genre, n):
     print(f"\nTop {n} {genre} movies (by average rating):")
     for movie, avg in top_n:
         print(f"{movie}: {avg:.2f}")
-
 
 def genre_popularity(movies, ratings, n):
     """
@@ -116,7 +128,6 @@ def genre_popularity(movies, ratings, n):
 
     # Return top N genres with proper capitalization
     return [(genre.title(), avg) for genre, avg in sorted_genres[:n]]
-
 
 def user_preference(movies, ratings, user_id):
     """
@@ -176,9 +187,6 @@ def user_preference(movies, ratings, user_id):
 
     return preferred_genre.title()
 
-
-
-
 def recommend_movies(user_id, movies, ratings):
     """
     Recommend 3 most popular movies from the user's top genre
@@ -234,6 +242,10 @@ def print_menu():
 
 
 def main():
+    """
+    Main interactive menu loop for the movie recommender system.
+    Allows the user to load data files and test various functions interactively.
+    """
     movies = []
     ratings = []
 
@@ -242,21 +254,41 @@ def main():
         choice = input("Enter choice: ").strip()
 
         if choice == "1":
-            filename = input("Enter movie data filename: ").strip()
-            movies = load_movies_file(filename)
+            try:
+                filename = input("Enter movie data filename: ").strip()
+                movies = load_movies_file(filename)
+            except FileNotFoundError:
+                print("Error: File not found.")
+            except Exception as e:
+                print(f"Unexpected error loading movies file: {e}")
 
         elif choice == "2":
-            filename = input("Enter ratings data filename: ").strip()
-            ratings = load_ratings_file(filename)
+            try:
+                filename = input("Enter ratings data filename: ").strip()
+                ratings = load_ratings_file(filename)
+            except FileNotFoundError:
+                print("Error: File not found.")
+            except Exception as e:
+                print(f"Unexpected error loading ratings file: {e}")
 
         elif choice == "3":
-            n = int(input("Enter N: ").strip())
-            movie_popularity(ratings, n)
+            try:
+                n = int(input("Enter N: ").strip())
+                movie_popularity(ratings, n)
+            except ValueError:
+                print("Invalid input. Please enter an integer for N.")
+            except Exception as e:
+                print(f"Error running movie popularity: {e}")
 
         elif choice == "4":
-            genre = input("Enter genre: ").strip()
-            n = int(input("Enter N: ").strip())
-            movie_popularity_in_genre(movies, ratings, genre, n)
+            try:
+                genre = input("Enter genre: ").strip()
+                n = int(input("Enter N: ").strip())
+                movie_popularity_in_genre(movies, ratings, genre, n)
+            except ValueError:
+                print("Invalid input. Please enter an integer for N.")
+            except Exception as e:
+                print(f"Error running movie popularity in genre: {e}")
 
         elif choice == "5":
             try:
@@ -264,17 +296,26 @@ def main():
                 genre_popularity(movies, ratings, n)
             except ValueError:
                 print("Invalid input. Please enter an integer for N.")
+            except Exception as e:
+                print(f"Error running genre popularity: {e}")
 
         elif choice == "6":
             try:
-                user_id = int(input("Enter user id: ").strip())
+                user_id = int(input("Enter user ID: ").strip())
                 user_preference(movies, ratings, user_id)
             except ValueError:
                 print("Invalid input. Please enter an integer for user ID.")
+            except Exception as e:
+                print(f"Error running user preference: {e}")
 
         elif choice == "7":
-            user_id = input("Enter user ID: ").strip()
-            recommend_movies(user_id, movies, ratings)
+            try:
+                user_id = int(input("Enter user ID: ").strip())
+                recommend_movies(user_id, movies, ratings)
+            except ValueError:
+                print("Invalid input. Please enter an integer for user ID.")
+            except Exception as e:
+                print(f"Error running movie recommendation: {e}")
 
         elif choice == "8":
             print("Exiting program.")
@@ -282,7 +323,6 @@ def main():
 
         else:
             print("Invalid choice. Please try again.")
-
 
 if __name__ == "__main__":
     main()
