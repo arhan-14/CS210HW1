@@ -8,9 +8,13 @@ def load_movies_file(filename):
     """
     movies = {}
     with open(filename, "r") as f:
-        for line in f:
-            genre, movie_id, name = line.strip().split("|")
-            movies[name] = genre, movie_id
+        for line_no, line in enumerate(f, 1):
+            parts = line.strip().split("|")
+            if len(parts) != 3:
+                # print(f"⚠️ Skipping malformed line {line_no} in {filename}: {line.strip()}")
+                continue
+            genre, movie_id, name = parts
+            movies[name] = (genre, movie_id)
     print(f"Loaded {len(movies)} movies from {filename}")
     return movies
 
@@ -19,12 +23,25 @@ def load_ratings_file(filename):
     """
     Given a ratings file, return dictionary of ratings in the following format:
     {'movie name': [('rating1', 'id1'), ('rating2', 'id2')]}
+    Skips malformed or non-numeric rows gracefully.
     """
     ratings = {}
     with open(filename, "r") as f:
-        for line in f:
-            name, rating, user_id = line.strip().split("|")
-            ratings.setdefault(name, []).append((float(rating), int(user_id)))
+        for line_no, line in enumerate(f, 1):
+            parts = line.strip().split("|")
+            if len(parts) != 3:
+                print(
+                    f"⚠️ Skipping malformed line {line_no} in {filename}: {line.strip()}"
+                )
+                continue
+
+            name, rating, user_id = parts
+            try:
+                ratings.setdefault(name, []).append((float(rating), int(user_id)))
+            except ValueError:
+                print(f"⚠️ Skipping invalid rating on line {line_no}: {rating}")
+                continue
+
     print(f"Loaded {len(ratings)} ratings from {filename}...")
     return ratings
 
@@ -69,7 +86,7 @@ def movie_popularity_in_genre(movies, ratings, genre, n):
                 movie_scores[movie_name] = avg
     sorted_movies = sorted(movie_scores.items(), key=lambda x: x[1], reverse=True)
     top_n = sorted_movies[:n]
-    print(f"\nTop {n} {genre} movies (by average rating):")
+    print(f"\nTop {n} {genre} movies (by average rating)")
     for movie, avg in top_n:
         print(f"{movie}: {avg:.2f}")
 

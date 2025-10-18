@@ -1,0 +1,31 @@
+Die Hard (1988)|5.0|1
+Die Hard (1988)|4.5|2
+Die Hard (1988)|4.0|3
+Lethal Weapon (1987)|4.0|1
+Lethal Weapon (1987)|4.0|2
+Lethal Weapon (1987)|4.0|3
+The Mask (1994)|5.0|1
+The Mask (1994)|5.0|1
+The Mask (1994)|4.0|2
+Ace Ventura (1994)|3.0|3
+Ace Ventura (1994)|invalid|5
+Ace Ventura (1994)|5.0|6
+Forrest Gump (1994)|5.0|1
+Forrest Gump (1994)|5.0|2
+Forrest Gump (1994)|4.5|3
+The Shawshank Redemption (1994)|5.0|2
+The Shawshank Redemption (1994)|5.0|4
+The Shawshank Redemption (1994)|5.0|5
+Jurassic Park (1993)|4.5|1
+Jurassic Park (1993)|4.5|2
+Jurassic Park (1993)|4.5|3
+Indiana Jones (1981)|3.0|4
+Indiana Jones (1981)|3.0|5
+Scream (1996)|2.0|1
+Scream (1996)|3.0|2
+Scream (1996)|2.5|3
+The Ring (2002)|5.0|5
+The Ring (2002)|5.0|6
+The Ring (2002)|5.0|7
+Random Movie (1999)|4.0|2
+BadRowWithoutDelimiter
